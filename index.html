@@ -263,11 +263,22 @@
       days
     };
 
-    if (window.Telegram && Telegram.WebApp) {
-      Telegram.WebApp.sendData(JSON.stringify(payload));
-    } else {
-      // Dev fallback
-      alert(JSON.stringify(payload, null, 2));
+    const json = JSON.stringify(payload);
+
+    try {
+      if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.sendData === 'function') {
+        window.Telegram.WebApp.sendData(json);
+      } else {
+        // Fallback: show the data (outside Telegram context)
+        document.getElementById('submit-btn').textContent = 'Sent! ✅';
+        document.getElementById('submit-btn').disabled = true;
+        const pre = document.createElement('pre');
+        pre.style.cssText = 'margin:16px;font-size:11px;color:#888;word-break:break-all;white-space:pre-wrap;';
+        pre.textContent = 'DEBUG (not in Telegram):\n' + JSON.stringify(payload, null, 2);
+        document.body.appendChild(pre);
+      }
+    } catch(e) {
+      document.getElementById('submit-btn').textContent = 'Error: ' + e.message;
     }
   }
 
